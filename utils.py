@@ -58,7 +58,7 @@ def read(code):
         return None
 
 
-def read_code(code):
+def read_date_as_index(code):
     fileName = code + '.csv'
     # 文件是否存在
     if os.path.isfile(get_data_path() + fileName):
@@ -78,7 +78,7 @@ def downloadHistory():
     codeList = list(todayDF['code'])
     for code in codeList:
         print (code)
-        codeDF = read_code(code)
+        codeDF = read_date_as_index(code)
         if codeDF is None:
             print('downloading ' + code)
             df = ts.get_hist_data(code)
