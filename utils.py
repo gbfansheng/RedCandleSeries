@@ -21,6 +21,7 @@ def downloadToday():
 
 def save_dict(dict, name):
     f = open(get_data_path() + name, 'w')
+    print 'save:' + get_data_path() + name
     pickle.dump(dict, f)
     f.close()
 
@@ -42,8 +43,8 @@ def get_today():
 
 def get_data_path():
     parent = os.path.dirname(os.getcwd())
-    data_path = parent + '/data/'
-    if not os.path.exists(data_path) :
+    data_path = parent + '\\data\\'
+    if not os.path.exists(data_path):
         os.makedirs(data_path)
     return data_path
 
