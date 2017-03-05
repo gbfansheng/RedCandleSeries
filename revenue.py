@@ -9,7 +9,7 @@ import os
 
 def caculate_revenue():
     series_dict = utils.get_dict('series_dict')
-    revenue_days = 20
+    revenue_days = 60
     revenue_dict = {}
     for key in series_dict:
         value_list = series_dict[key]
@@ -21,6 +21,7 @@ def caculate_revenue():
             series_df = code_df[code_df['date'].isin([date_string])]
             series_close = float(series_df['close'])
             revenue_date = series_date
+
             for days in range(revenue_days):
                 revenue_list = revenue_dict.get(str(days), [])
                 revenue_date = revenue_date + datetime.timedelta(days=1)
@@ -83,6 +84,6 @@ def save_series():
 
 
 if __name__ == '__main__':
-    caculate_revenue()
-    statistic()
-    # save_series()
+    # caculate_revenue()
+    # statistic()
+    save_series()

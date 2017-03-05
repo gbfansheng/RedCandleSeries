@@ -5,6 +5,7 @@ import tushare as ts
 import os
 import datetime
 import pickle
+from multiprocessing import Pool
 
 
 def downloadToday():
@@ -77,34 +78,41 @@ def save(df, name):
 def downloadHistory():
     todayDF = get_today()
     codeList = list(todayDF['code'])
-    for code in codeList:
-        print (code)
-        codeDF = read_date_as_index(code)
-        if codeDF is None:
-            print('downloading ' + code)
-            df = ts.get_hist_data(code)
-            if df is None:
-                pass
-            else:
-                # 新股没有数据，return none
-                save(df, code)
-        else:
-            ##处理时间
-            # dateList = list(codeDF.get('date'))
-            # dateString = dateList[0:1][0]
-            nowdt = datetime.datetime.now()
-            nowdtstring = nowdt.strftime('%Y-%m-%d')
-            indexs = list(codeDF.index)
-            if indexs.__contains__(nowdtstring):
-                pass
-            else:
-                ##获取两日日期之间的数据
-                dateString = indexs[0]
-                dt = datetime.datetime.strptime(dateString, '%Y-%m-%d')
-                dt = dt + datetime.timedelta(days=1)
-                dtstring = dt.strftime('%Y-%m-%d')
-                additionDF = ts.get_hist_data(code=code, start=dtstring, end=nowdtstring)
-                concatDF = pd.concat([additionDF, codeDF])
-                save(concatDF, code)
+    pool = Pool(20)
+    pool.map(download, codeList)
+    pool.close()
+    pool.join()
+    # for code in codeList:
+    #     download(code=code)
 
+
+def download(code):
+    print (code)
+    codeDF = read_date_as_index(code)
+    if codeDF is None:
+        print('downloading ' + code)
+        df = ts.get_hist_data(code, '2011-01-01', '2017-03-03')
+        if df is None:
+            pass
+        else:
+            # 新股没有数据，return none
+            save(df, code)
+    else:
+        ##处理时间
+        # dateList = list(codeDF.get('date'))
+        # dateString = dateList[0:1][0]
+        nowdt = datetime.datetime.now()
+        nowdtstring = nowdt.strftime('%Y-%m-%d')
+        indexs = list(codeDF.index)
+        if indexs.__contains__(nowdtstring):
+            pass
+        else:
+            ##获取两日日期之间的数据
+            dateString = indexs[0]
+            dt = datetime.datetime.strptime(dateString, '%Y-%m-%d')
+            dt = dt + datetime.timedelta(days=1)
+            dtstring = dt.strftime('%Y-%m-%d')
+            additionDF = ts.get_hist_data(code=code, start=dtstring, end=nowdtstring)
+            concatDF = pd.concat([additionDF, codeDF])
+            save(concatDF, code)
 
