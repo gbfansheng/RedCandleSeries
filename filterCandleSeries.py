@@ -3,11 +3,7 @@
 import utils
 import datetime
 import multiprocessing
-import threading
 from multiprocessing import Pool
-
-lock = threading.Lock()
-
 
 def begin_date():
     return datetime.date(2016, 1, 4)
@@ -68,14 +64,18 @@ def is_include_series(series_list, date_string):
 
 
 def filter_candle():
+    global series_dict
     today_df = utils.get_today()
     code_list = list(today_df['code'])
-    end_date = datetime.datetime.now().date()
     series_dict = {}
-    p = multiprocessing.Process()
+    # pool = Pool(20)
+    # pool.map(filter, code_list)
+    # pool.close()
+    # pool.join()
+    # utils.save_dict(series_dict, 'series_dict')
     for code in code_list:
-        t = threading.Thread(target=filter, args=(code,))
-
+        filter(code)
+    print series_dict
 
     # for code in code_list:
     #     print (code)
@@ -88,10 +88,12 @@ def filter_candle():
     #             series_list.append(series_date)
     #             series_dict[code] = series_list
     # utils.save_dict(series_dict, 'series_dict')
-    print series_dict
+    # print series_dict
 
 
 def filter(code):
+    global series_dict
+    print code
     series_list = []
     end_date = datetime.datetime.now().date()
     code_df = utils.read(code)
@@ -100,13 +102,7 @@ def filter(code):
         fit_series, series_date = is_series(code_df, mark_date)
         if fit_series and not is_include_series(series_list, series_date):
             series_list.append(series_date)
-    lock.acquire()
-
-
-# def save_with(lock, code, series_list, series_dict):
-#     with lock:
-#         series_dict[code] = series_list
-
+    series_dict[code] = series_list
 
 
 if __name__ == '__main__':
